@@ -1,0 +1,51 @@
+========================================
+AlphaBase v4.0 - Installation Guide
+========================================
+
+QUICK START (3 Steps):
+----------------------
+
+1. INSTALL PYTHON
+   - Download Python 3.9 or higher from python.org
+   - During installation, CHECK "Add Python to PATH"
+   - Restart your computer after installation
+
+2. INSTALL DEPENDENCIES
+   - Double-click: install_dependencies.bat
+   - Wait for installation to complete
+   - This only needs to be done once
+
+3. START ALPHABASE
+   - Double-click: start.bat
+   - Follow the setup wizard (first time only)
+   - Access the console at: http://localhost:8000/index.html
+
+========================================
+
+ACCESSING FROM OTHER DEVICES:
+-----------------------------
+
+1. Find your computer's IP address:
+   - Open Command Prompt (cmd)
+   - Type: ipconfig
+   - Look for "IPv4 Address" (e.g., 192.168.1.100)
+
+2. Edit js/config.js on line 3:
+   Change: API_BASE_URL: 'http://localhost:8000'
+   To:     API_BASE_URL: 'http://192.168.1.100:8000'
+   (Use YOUR IP address)
+
+3. Access from phone/tablet on same WiFi:
+   http://192.168.1.100:8000/index.html
+
+========================================
+
+TROUBLESHOOTING:
+---------------
+
+- "Python not found": Install Python and add to PATH
+- "pip not found": Reinstall Python with "Add to PATH" checked
+- "Port already in use": Change port in alphabase_config.json
+- Can't access from other devices: Check Windows Firewall settings
+
+========================================

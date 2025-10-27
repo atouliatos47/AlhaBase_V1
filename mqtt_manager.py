@@ -22,10 +22,12 @@ class MQTTManager:
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             print(f"✅ MQTT Connected to broker")
-            # Subscribe to ESP32 topics
-            client.subscribe("alphabase/sensors/#")
-            client.subscribe("alphabase/status/#")
-            client.subscribe("alphabase/commands/#")
+            # Subscribe to topics from config
+            from config import config
+            topics = config.get("mqtt", "topics")
+            for topic in topics:
+                client.subscribe(topic)
+                print(f"   - {topic}")
             print("📡 Subscribed to ESP32 MQTT topics:")
             print("   - alphabase/sensors/#")
             print("   - alphabase/status/#")
@@ -114,9 +116,19 @@ class MQTTManager:
     
     def start(self):
         def run_mqtt():
+            # Import config
+            from config import config
+            
+            # Check if MQTT is enabled
+            if not config.get("mqtt", "enabled"):
+                print("⏭️  MQTT disabled in config")
+                return
+            
+            mqtt_host = config.get("mqtt", "broker_host")
+            mqtt_port = config.get("mqtt", "broker_port")
+            
             try:
-                # FIXED: Use your PC's IP instead of localhost
-                self.client.connect("192.168.0.52", 1883, 60)
+                self.client.connect(mqtt_host, mqtt_port, 60)
                 print("🚀 MQTT client starting...")
                 self.client.loop_forever()
             except Exception as e:

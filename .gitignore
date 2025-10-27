@@ -1,0 +1,35 @@
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Configuration (user-specific)
+alphabase_config.json
+
+# Storage directories
+alphabase_storage/
+__pycache__/
+*.pyc
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

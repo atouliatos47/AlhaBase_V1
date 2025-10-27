@@ -1,7 +1,7 @@
 // api.js - AlphaBase API Communication Module
 
 const api = {
-    baseURL: 'http://localhost:8000',
+    baseURL: window.AlphaBaseConfig.API_BASE_URL,
     authToken: null,
     currentUsername: null,
 

@@ -3,12 +3,12 @@
 const wsManager = {
     ws: null,
     reconnectAttempts: 0,
-    maxReconnectAttempts: 5,
-    reconnectDelay: 3000,
+    maxReconnectAttempts: window.AlphaBaseConfig.WS_RECONNECT_ATTEMPTS,
+    reconnectDelay: window.AlphaBaseConfig.WS_RECONNECT_DELAY,
 
     // Connect to WebSocket
     connect() {
-        const wsURL = 'ws://localhost:8000/ws';
+        const wsURL = window.AlphaBaseConfig.WS_BASE_URL + '/ws';
 
         console.log('🔌 Connecting to WebSocket...');
         this.ws = new WebSocket(wsURL);

@@ -13,7 +13,12 @@ class FileStorage:
     """Manage file uploads, downloads, and metadata"""
     
     def __init__(self):
-        self.storage_dir = "alphabase_storage"
+        # Import config and store in AppData
+        import os
+        from pathlib import Path
+        appdata = Path(os.getenv('APPDATA')) / 'AlphaBase'
+        appdata.mkdir(exist_ok=True)
+        self.storage_dir = str(appdata / "alphabase_storage")
         self.users_dir = os.path.join(self.storage_dir, "users")
         self.public_dir = os.path.join(self.storage_dir, "public")
         

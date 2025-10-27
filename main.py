@@ -1,5 +1,6 @@
 # main.py - AlphaBase v4.0 (FIXED)
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, File, Form, UploadFile
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.responses import FileResponse
@@ -23,6 +24,11 @@ from mqtt_manager import mqtt_manager
 # FastAPI App
 app = FastAPI(title="AlphaBase", version="4.0.0")
 
+# Mount static files for web console
+app.mount("/console", StaticFiles(directory="console", html=True), name="console")
+
+# CORS
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -32,10 +38,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Security
-SECRET_KEY = "alphabase-secret-key-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Import configuration
+from config import config
+
+# Security (from config)
+SECRET_KEY = config.get("security", "secret_key")
+ALGORITHM = config.get("security", "algorithm")
+ACCESS_TOKEN_EXPIRE_MINUTES = config.get("security", "access_token_expire_minutes")
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 security = HTTPBearer()
@@ -417,5 +426,13 @@ async def websocket_endpoint(websocket: WebSocket):
 # Main
 if __name__ == "__main__":
     print("🚀 Starting AlphaBase v4.0...")
+    
+    # Start MQTT if enabled
     mqtt_manager.start()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    # Get server config
+    server_host = config.get("server", "host")
+    server_port = config.get("server", "port")
+    
+    print(f"📡 Server will run on http://{server_host}:{server_port}")
+    uvicorn.run(app, host=server_host, port=server_port)

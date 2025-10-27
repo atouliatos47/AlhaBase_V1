@@ -5,7 +5,19 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
 # Database Setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./alphabase.db"
+# Import configuration
+import sys
+import os
+from pathlib import Path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from config import config
+
+# Store database in AppData
+appdata = Path(os.getenv('APPDATA')) / 'AlphaBase'
+appdata.mkdir(exist_ok=True)
+db_path = appdata / "alphabase.db"
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{db_path}"
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

@@ -448,7 +448,79 @@ async def send_alert_notification(
         "success": success,
         "message": "Alert sent successfully" if success else "Failed to send alert"
     }
-    
+# Settings Endpoints
+@app.get("/settings/email")
+async def get_email_settings(username: str = Depends(verify_token)):
+    """Get email configuration (without password)"""
+    email_config = config.get("email")
+    # Don't send password to frontend
+    safe_config = {
+        "enabled": email_config.get("enabled", False),
+        "smtp_server": email_config.get("smtp_server", "smtp.gmail.com"),
+        "smtp_port": email_config.get("smtp_port", 587),
+        "sender_email": email_config.get("sender_email", "")
+    }
+    return safe_config
+
+@app.post("/settings/email")
+async def update_email_settings(
+    enabled: bool,
+    smtp_server: str,
+    smtp_port: int,
+    sender_email: str,
+    sender_password: str = None,
+    username: str = Depends(verify_token)
+):
+    """Update email configuration"""
+    try:
+        # Load current config
+        current_config = config.config
+        
+        # Update email settings
+        if "email" not in current_config:
+            current_config["email"] = {}
+        
+        current_config["email"]["enabled"] = enabled
+        current_config["email"]["smtp_server"] = smtp_server
+        current_config["email"]["smtp_port"] = smtp_port
+        current_config["email"]["sender_email"] = sender_email
+        
+        # Only update password if provided
+        if sender_password:
+            current_config["email"]["sender_password"] = sender_password
+        
+        # Save config
+        config.save_config(current_config)
+        
+        # Reload email manager with new settings
+        from email_manager import email_manager
+        email_manager.__init__()
+        
+        return {"success": True, "message": "Email settings updated"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+# Email Recipients Storage (in-memory for now, can be moved to database later)
+email_recipients = []
+
+@app.get("/settings/recipients")
+async def get_recipients(username: str = Depends(verify_token)):
+    """Get list of email recipients"""
+    return email_recipients
+
+@app.post("/settings/recipients")
+async def add_recipient(email: str, username: str = Depends(verify_token)):
+    """Add email recipient"""
+    if email not in email_recipients:
+        email_recipients.append(email)
+    return {"success": True, "message": "Recipient added"}
+
+@app.delete("/settings/recipients/{email}")
+async def remove_recipient(email: str, username: str = Depends(verify_token)):
+    """Remove email recipient"""
+    if email in email_recipients:
+        email_recipients.remove(email)
+    return {"success": True, "message": "Recipient removed"}    
 # WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

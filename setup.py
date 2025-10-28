@@ -73,7 +73,32 @@ def setup_wizard():
                 "alphabase/commands/#"
             ]
         }
-    
+        # Email Configuration
+    print("\n📧 EMAIL CONFIGURATION")
+    print("-" * 60)
+    email_enabled = input("Enable email notifications? (y/n, default: n): ").strip().lower() == 'y'
+
+    if email_enabled:
+        smtp_server = input("Enter SMTP server (default: smtp.gmail.com): ").strip() or "smtp.gmail.com"
+        smtp_port = input("Enter SMTP port (default: 587): ").strip() or "587"
+        sender_email = input("Enter sender email address: ").strip()
+        sender_password = input("Enter email password or app password: ").strip()
+        
+        config["email"] = {
+            "enabled": True,
+            "smtp_server": smtp_server,
+            "smtp_port": int(smtp_port),
+            "sender_email": sender_email,
+            "sender_password": sender_password
+        }
+    else:
+        config["email"] = {
+            "enabled": False,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "sender_email": "",
+            "sender_password": ""
+        }
     # Storage Configuration
     print("\n📁 STORAGE CONFIGURATION")
     print("-" * 60)

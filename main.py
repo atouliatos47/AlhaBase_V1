@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 import jwt
 from datetime import datetime, timedelta
+from email_manager import email_manager
 import uvicorn
 import json
 import os
@@ -418,6 +419,36 @@ async def system_status(username: str = Depends(verify_token)):
         "version": "4.0.0"
     }
 
+# Email Notification Endpoints
+@app.post("/notifications/send-email")
+async def send_email_notification(
+    to_email: str,
+    subject: str,
+    body: str,
+    username: str = Depends(verify_token)
+):
+    """Send an email notification"""
+    success = email_manager.send_email(to_email, subject, body)
+    return {
+        "success": success,
+        "message": "Email sent successfully" if success else "Failed to send email"
+    }
+
+@app.post("/notifications/send-alert")
+async def send_alert_notification(
+    to_email: str,
+    alert_title: str,
+    alert_message: str,
+    data: dict = None,
+    username: str = Depends(verify_token)
+):
+    """Send a formatted alert email"""
+    success = email_manager.send_alert(to_email, alert_title, alert_message, data)
+    return {
+        "success": success,
+        "message": "Alert sent successfully" if success else "Failed to send alert"
+    }
+    
 # WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

@@ -13,8 +13,12 @@ const app = {
             this.handleLogin();
         });
         
-        // Check if already logged in (for development)
-        // In production, you'd check for stored token
+        // Setup register form
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegister();
+        });
+        
         console.log('✅ Application initialized');
     },
     
@@ -54,6 +58,56 @@ const app = {
         }
     },
     
+    // Handle registration
+    async handleRegister() {
+        const username = document.getElementById('regUsername').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        
+        try {
+            const response = await fetch(`${api.baseURL}/auth/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Registration failed');
+            }
+
+            const data = await response.json();
+            
+            // Store token
+            api.authToken = data.access_token;
+            api.currentUsername = username;
+            
+            // Hide login, show console
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('console').style.display = 'block';
+            document.getElementById('currentUser').textContent = username;
+            
+            // Connect to WebSocket
+            wsManager.connect();
+            
+            // Load initial dashboard
+            await dashboard.loadDashboard();
+            
+            // Show welcome message
+            wsManager.showAlert(
+                'Account Created!',
+                `Welcome to AlphaBase, ${username}!`,
+                'success',
+                3000
+            );
+            
+        } catch (error) {
+            this.showLoginStatus('Registration failed. ' + error.message, 'error');
+        }
+    },
+    
     // Logout
     logout() {
         // Disconnect WebSocket
@@ -67,6 +121,10 @@ const app = {
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('console').style.display = 'none';
         document.getElementById('loginForm').reset();
+        document.getElementById('registerForm').reset();
+        
+        // Show login form (hide register)
+        showLoginForm();
         
         console.log('👋 Logged out');
     },
@@ -86,19 +144,18 @@ const app = {
         this.currentView = viewName;
         
         // Show selected view and load its data
- // Show selected view and load its data
-if (viewName === 'dashboard') {
-    document.getElementById('dashboardView').classList.add('active');
-    dashboard.loadDashboard();
-} else if (viewName === 'analytics') {
-    document.getElementById('analyticsView').classList.add('active');
-    charts.loadAnalytics();
-} else if (viewName === 'data') {
-    document.getElementById('dataView').classList.add('active');
-} else if (viewName === 'collections') {
-    document.getElementById('collectionsView').classList.add('active');
-    dashboard.loadCollectionsView();
-}
+        if (viewName === 'dashboard') {
+            document.getElementById('dashboardView').classList.add('active');
+            dashboard.loadDashboard();
+        } else if (viewName === 'analytics') {
+            document.getElementById('analyticsView').classList.add('active');
+            charts.loadAnalytics();
+        } else if (viewName === 'data') {
+            document.getElementById('dataView').classList.add('active');
+        } else if (viewName === 'collections') {
+            document.getElementById('collectionsView').classList.add('active');
+            dashboard.loadCollectionsView();
+        }
     },
     
     // Show login status message
@@ -106,11 +163,25 @@ if (viewName === 'dashboard') {
         const statusDiv = document.getElementById('loginStatus');
         statusDiv.textContent = message;
         statusDiv.className = `status ${type}`;
+        statusDiv.style.display = 'block';
         setTimeout(() => {
             statusDiv.style.display = 'none';
-        }, 3000);
+        }, 5000);
     }
 };
+
+// Form switching functions (global scope for onclick)
+function showRegisterForm() {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+    document.getElementById('loginStatus').style.display = 'none';
+}
+
+function showLoginForm() {
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('loginStatus').style.display = 'none';
+}
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

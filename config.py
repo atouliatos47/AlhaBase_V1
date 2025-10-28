@@ -7,9 +7,9 @@ class Config:
     def __init__(self):
         # Store config in user's AppData folder
         import os
-        appdata = Path(os.getenv('APPDATA')) / 'AlphaBase'
-        appdata.mkdir(exist_ok=True)
-        self.config_file = appdata / "alphabase_config.json"
+        appdata_path = Path(os.getenv('APPDATA')) / 'AlphaBase'
+        appdata_path.mkdir(exist_ok=True)
+        self.config_file = appdata_path / "alphabase_config.json"
         self.config = self.load_config()
     
     def load_config(self):
@@ -41,6 +41,13 @@ class Config:
                         "alphabase/status/#",
                         "alphabase/commands/#"
                     ]
+                },
+                "email": {
+                    "enabled": False,
+                    "smtp_server": "smtp.gmail.com",
+                    "smtp_port": 587,
+                    "sender_email": "",
+                    "sender_password": ""
                 },
                 "storage": {
                     "directory": "alphabase_storage"

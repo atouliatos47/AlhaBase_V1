@@ -422,12 +422,14 @@ async def system_status(username: str = Depends(verify_token)):
 # Email Notification Endpoints
 @app.post("/notifications/send-email")
 async def send_email_notification(
-    to_email: str,
-    subject: str,
-    body: str,
+    request: dict,
     username: str = Depends(verify_token)
 ):
     """Send an email notification"""
+    to_email = request.get("to_email")
+    subject = request.get("subject")
+    body = request.get("body")
+    
     success = email_manager.send_email(to_email, subject, body)
     return {
         "success": success,
@@ -436,13 +438,15 @@ async def send_email_notification(
 
 @app.post("/notifications/send-alert")
 async def send_alert_notification(
-    to_email: str,
-    alert_title: str,
-    alert_message: str,
-    data: dict = None,
+    request: dict,
     username: str = Depends(verify_token)
 ):
     """Send a formatted alert email"""
+    to_email = request.get("to_email")
+    alert_title = request.get("alert_title")
+    alert_message = request.get("alert_message")
+    data = request.get("data")
+    
     success = email_manager.send_alert(to_email, alert_title, alert_message, data)
     return {
         "success": success,
@@ -464,11 +468,7 @@ async def get_email_settings(username: str = Depends(verify_token)):
 
 @app.post("/settings/email")
 async def update_email_settings(
-    enabled: bool,
-    smtp_server: str,
-    smtp_port: int,
-    sender_email: str,
-    sender_password: str = None,
+    request: dict,
     username: str = Depends(verify_token)
 ):
     """Update email configuration"""
@@ -480,17 +480,20 @@ async def update_email_settings(
         if "email" not in current_config:
             current_config["email"] = {}
         
-        current_config["email"]["enabled"] = enabled
-        current_config["email"]["smtp_server"] = smtp_server
-        current_config["email"]["smtp_port"] = smtp_port
-        current_config["email"]["sender_email"] = sender_email
+        current_config["email"]["enabled"] = request.get("enabled", False)
+        current_config["email"]["smtp_server"] = request.get("smtp_server", "smtp.gmail.com")
+        current_config["email"]["smtp_port"] = request.get("smtp_port", 587)
+        current_config["email"]["sender_email"] = request.get("sender_email", "")
         
         # Only update password if provided
-        if sender_password:
-            current_config["email"]["sender_password"] = sender_password
+        if request.get("sender_password"):
+            current_config["email"]["sender_password"] = request["sender_password"]
         
         # Save config
         config.save_config(current_config)
+        
+        # IMPORTANT: Reload config from file
+        config.config = config.load_config()
         
         # Reload email manager with new settings
         from email_manager import email_manager
@@ -500,7 +503,7 @@ async def update_email_settings(
     except Exception as e:
         return {"success": False, "message": str(e)}
 
-# Email Recipients Storage (in-memory for now, can be moved to database later)
+# Email Recipients Storage (in-memory for now)
 email_recipients = []
 
 @app.get("/settings/recipients")
@@ -509,9 +512,10 @@ async def get_recipients(username: str = Depends(verify_token)):
     return email_recipients
 
 @app.post("/settings/recipients")
-async def add_recipient(email: str, username: str = Depends(verify_token)):
+async def add_recipient(request: dict, username: str = Depends(verify_token)):
     """Add email recipient"""
-    if email not in email_recipients:
+    email = request.get("email", "")
+    if email and email not in email_recipients:
         email_recipients.append(email)
     return {"success": True, "message": "Recipient added"}
 
@@ -520,7 +524,7 @@ async def remove_recipient(email: str, username: str = Depends(verify_token)):
     """Remove email recipient"""
     if email in email_recipients:
         email_recipients.remove(email)
-    return {"success": True, "message": "Recipient removed"}    
+    return {"success": True, "message": "Recipient removed"}  
 # WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

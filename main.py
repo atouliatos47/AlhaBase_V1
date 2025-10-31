@@ -8,6 +8,7 @@ from pydantic import BaseModel, EmailStr
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 import jwt
+from jwt.exceptions import PyJWTError # <--- ADD THIS LINE
 from datetime import datetime, timedelta
 from email_manager import email_manager
 import uvicorn
@@ -104,7 +105,7 @@ def verify_token(credentials = Depends(security)):
         return username
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.JWTError:
+    except PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
 
 # =============================================================================

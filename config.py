@@ -18,11 +18,11 @@ class Config:
             with open(self.config_file, 'r') as f:
                 return json.load(f)
         else:
-            # Create default configuration
+            # Create default configuration WITH TELEGRAM
             default_config = {
                 "server": {
                     "host": "0.0.0.0",
-                    "port": 8000
+                    "port": 8000 
                 },
                 "database": {
                     "url": "sqlite:///./alphabase.db"
@@ -33,7 +33,7 @@ class Config:
                     "access_token_expire_minutes": 30
                 },
                 "mqtt": {
-                    "enabled": False,
+                    "enabled": True,  # Changed to True since you're using MQTT
                     "broker_host": "localhost",
                     "broker_port": 1883,
                     "topics": [
@@ -42,12 +42,17 @@ class Config:
                         "alphabase/commands/#"
                     ]
                 },
+                "telegram": {  # ADD THIS SECTION
+                    "enabled": True,
+                    "bot_token": "8223163172:AAGPtPNPdZ94f7KiwYw7QJzoW52uWAtCm5w",
+                    "chat_id": "8314923318"
+                },
                 "email": {
-                    "enabled": False,
+                    "enabled": True,
                     "smtp_server": "smtp.gmail.com",
                     "smtp_port": 587,
-                    "sender_email": "",
-                    "sender_password": ""
+                    "sender_email": "atouliatos43@gmail.com",
+                    "sender_password": "nsnrqeobhwquvvkf"
                 },
                 "storage": {
                     "directory": "alphabase_storage"
@@ -68,7 +73,8 @@ class Config:
         """Get nested configuration value"""
         value = self.config
         for key in keys:
-            value = value.get(key)
+            if isinstance(value, dict):
+                value = value.get(key)
             if value is None:
                 return None
         return value

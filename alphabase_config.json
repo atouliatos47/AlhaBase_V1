@@ -28,7 +28,7 @@
         "enabled": true,
         "smtp_server": "smtp.gmail.com",
         "smtp_port": 587,
-        "sender_email": "atoul",
+        "sender_email": "atouliatos43@gmail.com",
         "sender_password": "nsnrqeobhwquvvkf"
     },
     "telegram": {

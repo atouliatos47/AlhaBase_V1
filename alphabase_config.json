@@ -1,27 +1,39 @@
 {
-    "server": {
-        "host": "0.0.0.0",
-        "port": 8000
-    },
-    "database": {
-        "url": "sqlite:///./alphabase.db"
-    },
-    "security": {
-        "secret_key": "alphabase-secret-key-change-in-production",
-        "algorithm": "HS256",
-        "access_token_expire_minutes": 30
-    },
-    "mqtt": {
-        "enabled": false,
-        "broker_host": "localhost",
-        "broker_port": 1883,
-        "topics": [
-            "alphabase/sensors/#",
-            "alphabase/status/#",
-            "alphabase/commands/#"
-        ]
-    },
-    "storage": {
-        "directory": "alphabase_storage"
-    }
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000
+  },
+  "database": {
+    "url": "sqlite:///./alphabase.db"
+  },
+  "security": {
+    "secret_key": "w523IxkZcpGkOj67CvZCMJFaBr4BB4JlTn9AtnKZzKM",
+    "algorithm": "HS256",
+    "access_token_expire_minutes": 30
+  },
+  "mqtt": {
+    "enabled": true,
+    "broker_host": "localhost",
+    "broker_port": 1883,
+    "topics": [
+      "alphabase/sensors/#",
+      "alphabase/status/#",
+      "alphabase/commands/#"
+    ]
+  },
+  "storage": {
+    "directory": "alphabase_storage"
+  },
+  "email": {
+    "enabled": true,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "sender_email": "atouliatos43@gmail.com",
+    "sender_password": "vlcfpgjlbnbhixut"
+  },
+  "telegram": {
+    "enabled": true,
+    "bot_token": "8223163172:AAGPtPNPdZ94f7KiwYw7QJzoW52uWAtCm5w",
+    "chat_id": "8314923318"
+  }
 }

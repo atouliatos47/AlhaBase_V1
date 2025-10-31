@@ -524,7 +524,89 @@ async def remove_recipient(email: str, username: str = Depends(verify_token)):
     """Remove email recipient"""
     if email in email_recipients:
         email_recipients.remove(email)
-    return {"success": True, "message": "Recipient removed"}  
+    return {"success": True, "message": "Recipient removed"} 
+
+# ============================================================================
+# TELEGRAM NOTIFICATION ENDPOINTS
+# ============================================================================
+
+from telegram_manager import telegram_manager
+
+@app.get("/settings/telegram")
+async def get_telegram_settings(username: str = Depends(verify_token)):
+    """Get Telegram configuration (without token)"""
+    telegram_config = config.get("telegram", {})
+    # Don't send full token to frontend
+    safe_config = {
+        "enabled": telegram_config.get("enabled", False),
+        "bot_token": telegram_config.get("bot_token", "")[:20] + "..." if telegram_config.get("bot_token") else "",
+        "chat_id": telegram_config.get("chat_id", "")
+    }
+    return safe_config
+
+@app.post("/settings/telegram")
+async def update_telegram_settings(
+    request: dict,
+    username: str = Depends(verify_token)
+):
+    """Update Telegram configuration"""
+    try:
+        current_config = config.config
+        
+        if "telegram" not in current_config:
+            current_config["telegram"] = {}
+        
+        current_config["telegram"]["enabled"] = request.get("enabled", False)
+        current_config["telegram"]["bot_token"] = request.get("bot_token", "")
+        current_config["telegram"]["chat_id"] = request.get("chat_id", "")
+        
+        config.save_config(current_config)
+        config.config = config.load_config()
+        
+        # Reload telegram manager
+        telegram_manager.__init__()
+        
+        return {"success": True, "message": "Telegram settings updated"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+@app.post("/notifications/send-telegram")
+async def send_telegram_notification(
+    request: dict,
+    username: str = Depends(verify_token)
+):
+    """Send a Telegram message"""
+    message = request.get("message")
+    success = telegram_manager.send_message(message)
+    return {
+        "success": success,
+        "message": "Telegram sent successfully" if success else "Failed to send Telegram"
+    }
+
+@app.post("/notifications/send-telegram-alert")
+async def send_telegram_alert_notification(
+    request: dict,
+    username: str = Depends(verify_token)
+):
+    """Send a formatted Telegram alert"""
+    title = request.get("title")
+    message = request.get("message")
+    data = request.get("data", {})
+    
+    success = telegram_manager.send_alert(title, message, data)
+    return {
+        "success": success,
+        "message": "Telegram alert sent successfully" if success else "Failed to send Telegram alert"
+    }
+
+@app.post("/notifications/test-telegram")
+async def test_telegram(username: str = Depends(verify_token)):
+    """Test Telegram connection"""
+    success = telegram_manager.test_connection()
+    return {
+        "success": success,
+        "message": "Telegram test successful!" if success else "Telegram test failed"
+    } 
 # WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

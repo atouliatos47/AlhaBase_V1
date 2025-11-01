@@ -6,15 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlphaBase Console v4.0</title>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
-    <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-box">
             <div class="logo">
@@ -24,7 +21,6 @@
 
             <div id="loginStatus" class="status"></div>
 
-            <!-- Login Form -->
             <form id="loginForm" style="display: block;">
                 <div class="form-group">
                     <label>Username</label>
@@ -44,7 +40,6 @@
                 </div>
             </form>
 
-            <!-- Register Form -->
             <form id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label>Username</label>
@@ -71,9 +66,7 @@
         </div>
     </div>
 
-    <!-- Console -->
     <div id="console" class="console">
-        <!-- Header -->
         <div class="console-header">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="console-title">AlphaBase Console</div>
@@ -90,7 +83,6 @@
             </div>
         </div>
 
-        <!-- Navigation -->
         <div class="console-nav">
             <button class="nav-item active" onclick="app.switchView('dashboard')">Dashboard</button>
             <button class="nav-item" onclick="app.switchView('analytics')">Analytics</button>
@@ -99,9 +91,7 @@
             <button class="nav-item" onclick="app.switchView('settings')">⚙️ Settings</button>
         </div>
 
-        <!-- Content -->
         <div class="console-content">
-            <!-- Dashboard View -->
             <div id="dashboardView" class="view active">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -131,7 +121,6 @@
                 </div>
             </div>
 
-            <!-- Analytics View -->
             <div id="analyticsView" class="view">
                 <div class="panel">
                     <h2>📊 Data Analytics</h2>
@@ -158,8 +147,6 @@
                 </div>
             </div>
 
-
-            <!-- Data Manager View -->
             <div id="dataView" class="view">
                 <div class="panel">
                     <h2>Data Manager</h2>
@@ -194,85 +181,78 @@
                 </div>
             </div>
 
-            <!-- Collections View -->
             <div id="collectionsView" class="view">
                 <div class="panel">
                     <h2>Collections Overview</h2>
                     <div id="collectionsTable"></div>
                 </div>
             </div>
-        </div>
-    </div>
+            
+            <div id="settingsView" class="view">
+                <div class="panel">
+                    <h2>⚙️ Settings</h2>
 
-    <!-- Settings View -->
-    <div id="settingsView" class="view">
-        <div class="panel">
-            <h2>⚙️ Settings</h2>
+                    <div style="margin-top: 24px;">
+                        <h3 style="font-size: 16px; margin-bottom: 16px;">📧 Email Notifications</h3>
 
-            <!-- Email Configuration Section -->
-            <div style="margin-top: 24px;">
-                <h3 style="font-size: 16px; margin-bottom: 16px;">📧 Email Notifications</h3>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="emailEnabled" onchange="settings.toggleEmailSettings()">
+                                <span>Enable Email Notifications</span>
+                            </label>
+                        </div>
 
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 8px;">
-                        <input type="checkbox" id="emailEnabled" onchange="settings.toggleEmailSettings()">
-                        <span>Enable Email Notifications</span>
-                    </label>
-                </div>
+                        <div id="emailSettings" style="display: none;">
+                            <div class="form-group">
+                                <label>SMTP Server</label>
+                                <input type="text" id="smtpServer" placeholder="smtp.gmail.com">
+                            </div>
 
-                <div id="emailSettings" style="display: none;">
-                    <div class="form-group">
-                        <label>SMTP Server</label>
-                        <input type="text" id="smtpServer" placeholder="smtp.gmail.com">
+                            <div class="form-group">
+                                <label>SMTP Port</label>
+                                <input type="number" id="smtpPort" placeholder="587">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Sender Email</label>
+                                <input type="email" id="senderEmail" placeholder="your-email@gmail.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email Password (App Password)</label>
+                                <input type="password" id="senderPassword" placeholder="Enter app password">
+                            </div>
+
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="settings.saveEmailConfig()">Save Email Config</button>
+                                <button class="btn btn-secondary" onclick="settings.testEmail()">Test Email</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>SMTP Port</label>
-                        <input type="number" id="smtpPort" placeholder="587">
+                    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e8eaed;">
+                        <h3 style="font-size: 16px; margin-bottom: 16px;">📬 Email Recipients</h3>
+
+                        <div class="form-group">
+                            <label>Add Recipient Email</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="email" id="recipientEmail" placeholder="recipient@example.com" style="flex: 1;">
+                                <button class="btn btn-primary" onclick="settings.addRecipient()">Add</button>
+                            </div>
+                        </div>
+
+                        <div id="recipientsList" style="margin-top: 16px;">
+                            </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Sender Email</label>
-                        <input type="email" id="senderEmail" placeholder="your-email@gmail.com">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email Password (App Password)</label>
-                        <input type="password" id="senderPassword" placeholder="Enter app password">
-                    </div>
-
-                    <div class="btn-group">
-                        <button class="btn btn-primary" onclick="settings.saveEmailConfig()">Save Email Config</button>
-                        <button class="btn btn-secondary" onclick="settings.testEmail()">Test Email</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Email Recipients Section -->
-            <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e8eaed;">
-                <h3 style="font-size: 16px; margin-bottom: 16px;">📬 Email Recipients</h3>
-
-                <div class="form-group">
-                    <label>Add Recipient Email</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="email" id="recipientEmail" placeholder="recipient@example.com" style="flex: 1;">
-                        <button class="btn btn-primary" onclick="settings.addRecipient()">Add</button>
-                    </div>
-                </div>
-
-                <div id="recipientsList" style="margin-top: 16px;">
-                    <!-- Recipients will be listed here -->
+                    <div id="settingsStatus" class="status" style="margin-top: 20px;"></div>
                 </div>
             </div>
-
-            <div id="settingsStatus" class="status" style="margin-top: 20px;"></div>
-        </div>
+            </div>
     </div>
 
-    <!-- Alert Container -->
     <div id="alertContainer"></div>
 
-    <!-- JavaScript Modules -->
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/websocket.js"></script>

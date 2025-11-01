@@ -1,58 +1,41 @@
-# security_rules.py
+# security_rules.py - Firebase-style Universal Backend
 
 class SecurityRules:
     def __init__(self):
-        # Default rules - similar to Firebase
+        # Keep only the essential rules, remove the rest
         self.rules = {
-            # Public read, but only owner can write
+            # Public read for sensors (keep this if you need it)
             "sensors": {
                 "read": "true",  # Anyone can read
-                "write": "resource.owner == auth.uid"  # Only owner can write
+                "write": "auth != null"  # But only authenticated users can write
             },
-            # Only authenticated users can access
-            "devices": {
-                "read": "auth != null", 
-                "write": "auth != null"
-            },
-            # Only owner can access their own data
-            "users": {
-                "read": "auth != null",
-                "write": "auth != null"
-            },
-            # Admin only collection
+            # Admin only collection (keep this for admin stuff)
             "admin": {
                 "read": "auth.uid == 'admin'",
                 "write": "auth.uid == 'admin'"
-            },
-            # File storage rules
-            "files": {
-                "read": "auth != null",
-                "write": "auth != null"
             }
         }
     
     def validate_read(self, collection: str, user: str = None, resource: dict = None) -> bool:
-        """Check if user can read from collection"""
-        if collection not in self.rules:
-            # Default: authenticated users only for unknown collections
-            return user is not None
+        """Firebase-style: Default to auth required, with exceptions"""
+        if collection in self.rules:
+            rule = self.rules[collection]["read"]
+            return self._evaluate_rule(rule, user, resource)
         
-        rule = self.rules[collection]["read"]
-        return self._evaluate_rule(rule, user, resource)
+        # Default for ANY unknown collection: auth required
+        return user is not None
     
     def validate_write(self, collection: str, user: str = None, resource: dict = None) -> bool:
-        """Check if user can write to collection"""
-        if collection not in self.rules:
-            # Default: authenticated users only for unknown collections
-            return user is not None
+        """Firebase-style: Default to auth required, with exceptions"""
+        if collection in self.rules:
+            rule = self.rules[collection]["write"]
+            return self._evaluate_rule(rule, user, resource)
         
-        rule = self.rules[collection]["write"]
-        return self._evaluate_rule(rule, user, resource)
+        # Default for ANY unknown collection: auth required
+        return user is not None
     
     def _evaluate_rule(self, rule: str, user: str, resource: dict) -> bool:
         """Evaluate a security rule"""
-        # Simple rule evaluation - in production you'd use a proper parser
-        
         # auth != null  --> user is authenticated
         if rule == "auth != null":
             return user is not None
